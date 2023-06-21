@@ -38,7 +38,9 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import * as json from "@/assets/all.json";
-import ratings from "@mtucourses/rate-my-professors";
+import ratings from "@/assets/rmp/@mtucourses/rate-my-professors";
+
+console.log(ratings);
 
 @Component
 export default class App extends Vue {
