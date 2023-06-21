@@ -10,53 +10,46 @@
     <table v-if="courses">
       <thead>
         <tr>
-          <th>Teacher</th>
-          <th>Average GPA</th>
-          <th>Average rating</th>
-          <th>Average difficulty</th>
-          <th>% would take again</th>
-          <th>Students taught</th>
-          <th>Courses taught</th>
-          <th># of ratings</th>
+          <th
+            v-for="heading in tableHeadings"
+            :key="heading.value"
+            @click="updateSort(heading.value)"
+            :class="{
+              active: sort.sortBy === heading.value,
+              ascending: sort.sortBy === heading.value && !sort.descending,
+              descending: sort.sortBy === heading.value && sort.descending,
+            }"
+          >
+            {{ heading.text }}
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="[teacher, teacherData] in Object.entries(teachers)"
-          :key="teacher"
-        >
+        <tr v-for="[teacher, teacherData] in sortedTeachers" :key="teacher">
           <td>{{ teacher }}</td>
           <td>{{ teacherData.gpa.toPrecision(4) }}</td>
           <td>
             {{
-              ratings[teacher] &&
-              ratings[teacher].avgRating &&
-              ratings[teacher].avgRating !== -1
-                ? ratings[teacher].avgRating.toFixed(1)
+              teacherData.avgRating !== -1
+                ? teacherData.avgRating.toFixed(1)
                 : "-"
             }}
           </td>
           <td>
             {{
-              ratings[teacher] &&
-              ratings[teacher].avgDifficulty &&
-              ratings[teacher].avgDifficulty !== -1
-                ? ratings[teacher].avgDifficulty
-                : "-"
+              teacherData.avgDifficulty !== -1 ? teacherData.avgDifficulty : "-"
             }}
           </td>
           <td>
             {{
-              ratings[teacher] &&
-              ratings[teacher].wouldTakeAgain &&
-              ratings[teacher].wouldTakeAgain !== -1
-                ? ratings[teacher].wouldTakeAgain.toFixed(0) + "%"
+              teacherData.wouldTakeAgain !== -1
+                ? teacherData.wouldTakeAgain.toFixed(0) + "%"
                 : "-"
             }}
           </td>
           <td>{{ teacherData.students }}</td>
           <td>{{ teacherData.courses }}</td>
-          <td>{{ ratings[teacher]?.numRatings }}</td>
+          <td>{{ teacherData.numRatings }}</td>
         </tr>
       </tbody>
     </table>
@@ -91,6 +84,31 @@ export default class App extends Vue {
     };
   }
 
+  tableHeadings = [
+    { text: "Teacher", value: "teacher" },
+    { text: "GPA", value: "gpa" },
+    { text: "Rating", value: "avgRating" },
+    { text: "Difficulty", value: "avgDifficulty" },
+    { text: "% would take again", value: "wouldTakeAgain" },
+    { text: "Students", value: "students" },
+    { text: "Courses", value: "courses" },
+    { text: "Ratings", value: "numRatings" },
+  ];
+
+  sort = {
+    sortBy: "teacher",
+    descending: true,
+  };
+
+  updateSort(heading: string) {
+    if (this.sort.sortBy === heading) {
+      this.sort.descending = !this.sort.descending;
+    } else {
+      this.sort.sortBy = heading;
+      this.sort.descending = true;
+    }
+  }
+
   fall = true;
   spring = true;
 
@@ -118,33 +136,81 @@ export default class App extends Vue {
   get teachers(): Record<
     string,
     {
+      teacher: string;
       students: number;
       courses: number;
       gpa: number;
+      avgRating: number;
+      avgDifficulty: number;
+      wouldTakeAgain: number;
+      numRatings: number;
     }
   > {
     let obj: Record<
       string,
       {
+        teacher: string;
         students: number;
         courses: number;
         gpa: number;
+        avgRating: number;
+        avgDifficulty: number;
+        wouldTakeAgain: number;
+        numRatings: number;
       }
     > = {};
     let list: string[] = Array.from(
       new Set(this.courses?.map((c) => c.teacher) || [])
     );
     for (let teacher of list) {
-      obj[teacher] = this.teacherInformation(teacher);
+      obj[teacher] = { teacher, ...this.teacherInformation(teacher) };
     }
 
     return obj;
+  }
+
+  get sortedTeachers() {
+    let base = Object.entries(this.teachers) as [
+      string,
+      Record<string, string | number>
+    ][];
+
+    base.sort((a, b) => {
+      let aData = a[1][this.sort.sortBy];
+      let bData = b[1][this.sort.sortBy];
+
+      let comparison = 0;
+
+      if (typeof aData === "string" && typeof bData === "string") {
+        comparison = (aData as string).localeCompare(bData as string) * -1;
+      } else if (typeof aData === "number" && typeof bData === "number") {
+        comparison = (aData as number) - (bData as number);
+      }
+      return comparison * (this.sort.descending ? -1 : 1);
+    });
+
+    return base as [
+      string,
+      {
+        students: number;
+        courses: number;
+        gpa: number;
+        avgRating: number;
+        avgDifficulty: number;
+        wouldTakeAgain: number;
+        numRatings: number;
+      }
+    ][];
   }
 
   teacherInformation(teacher: string): {
     students: number;
     courses: number;
     gpa: number;
+    avgRating: number;
+    avgDifficulty: number;
+    wouldTakeAgain: number;
+    numRatings: number;
   } {
     let students = 0;
     let totalGPA = 0;
@@ -163,6 +229,10 @@ export default class App extends Vue {
       students,
       courses,
       gpa: totalGPA / students,
+      avgRating: this.ratings[teacher]?.avgRating || -1,
+      avgDifficulty: this.ratings[teacher]?.avgDifficulty || -1,
+      wouldTakeAgain: this.ratings[teacher]?.wouldTakeAgain || -1,
+      numRatings: this.ratings[teacher]?.numRatings || 0,
     };
   }
 
@@ -217,6 +287,19 @@ tfoot th {
 tbody tr:nth-child(even),
 thead {
   background-color: #f2f2f2;
+}
+
+th.active::after {
+  color: black;
+  font-size: 1.25rem;
+}
+
+th.ascending::after {
+  content: "↑";
+}
+
+th.descending::after {
+  content: "↓";
 }
 
 /* 
