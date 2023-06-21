@@ -24,21 +24,45 @@
       >
         <td>{{ teacher }}</td>
         <td>{{ teacherData.gpa.toPrecision(4) }}</td>
-        <td>{{ teacherInfo[teacher]?.avgRating }}</td>
-        <td>{{ teacherInfo[teacher]?.avgDifficulty }}</td>
-        <td>{{ teacherInfo[teacher]?.wouldTakeAgain.toPrecision(3) }}%</td>
+        <td>
+          {{
+            ratings[teacher] &&
+            ratings[teacher].avgRating &&
+            ratings[teacher].avgRating !== -1
+              ? ratings[teacher].avgRating.toFixed(1)
+              : ""
+          }}
+        </td>
+        <td>
+          {{
+            ratings[teacher] &&
+            ratings[teacher].avgDifficulty &&
+            ratings[teacher].avgDifficulty !== -1
+              ? ratings[teacher].avgDifficulty
+              : ""
+          }}
+        </td>
+        <td>
+          {{
+            ratings[teacher] &&
+            ratings[teacher].wouldTakeAgain &&
+            ratings[teacher].wouldTakeAgain !== -1
+              ? ratings[teacher].wouldTakeAgain.toFixed(0) + "%"
+              : ""
+          }}
+        </td>
         <td>{{ teacherData.students }}</td>
         <td>{{ teacherData.courses }}</td>
-        <td>{{ teacherInfo[teacher]?.numRatings }}</td>
+        <td>{{ ratings[teacher]?.numRatings }}</td>
       </tr>
     </table>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import * as json from "@/assets/all.json";
-import ratings from "@mtucourses/rate-my-professors";
+import * as ratings from "@/assets/ratings.json";
+import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class App extends Vue {
@@ -123,10 +147,6 @@ export default class App extends Vue {
       courses += 1;
     }
 
-    if (!this.teacherInfo[teacher]) {
-      this.getRMP(teacher);
-    }
-
     return {
       students,
       courses,
@@ -134,35 +154,15 @@ export default class App extends Vue {
     };
   }
 
-  TAMU_ID = "U2Nob29sLTEwMDM=";
-
-  teacherInfo: Record<
-    string,
-    {
-      avgRating: number;
-      avgDifficulty: number;
-      wouldTakeAgain: number;
-      numRatings: number;
-    }
-  > = {};
-
-  async getRMP(name: string) {
-    let teachers = await ratings.searchTeacher(name, this.TAMU_ID);
-    if (teachers.length === 0) {
-      return;
-    }
-    let teacherID = teachers[0].id;
-    let rating = await ratings.getTeacher(teacherID);
-    let ret = {
-      avgRating: rating.avgRating,
-      avgDifficulty: rating.avgDifficulty,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      wouldTakeAgain: rating.wouldTakeAgainPercent,
-      numRatings: rating.numRatings,
+  get ratings() {
+    return ratings as {
+      [key: string]: {
+        avgRating: number;
+        avgDifficulty: number;
+        wouldTakeAgain: number;
+        numRatings: number;
+      };
     };
-
-    Vue.set(this.teacherInfo, name, ret);
   }
 }
 </script>
