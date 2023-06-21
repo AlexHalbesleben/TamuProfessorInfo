@@ -20,43 +20,45 @@
           <th># of ratings</th>
         </tr>
       </thead>
-      <tr
-        v-for="[teacher, teacherData] in Object.entries(teachers)"
-        :key="teacher"
-      >
-        <td>{{ teacher }}</td>
-        <td>{{ teacherData.gpa.toPrecision(4) }}</td>
-        <td>
-          {{
-            ratings[teacher] &&
-            ratings[teacher].avgRating &&
-            ratings[teacher].avgRating !== -1
-              ? ratings[teacher].avgRating.toFixed(1)
-              : ""
-          }}
-        </td>
-        <td>
-          {{
-            ratings[teacher] &&
-            ratings[teacher].avgDifficulty &&
-            ratings[teacher].avgDifficulty !== -1
-              ? ratings[teacher].avgDifficulty
-              : ""
-          }}
-        </td>
-        <td>
-          {{
-            ratings[teacher] &&
-            ratings[teacher].wouldTakeAgain &&
-            ratings[teacher].wouldTakeAgain !== -1
-              ? ratings[teacher].wouldTakeAgain.toFixed(0) + "%"
-              : ""
-          }}
-        </td>
-        <td>{{ teacherData.students }}</td>
-        <td>{{ teacherData.courses }}</td>
-        <td>{{ ratings[teacher]?.numRatings }}</td>
-      </tr>
+      <tbody>
+        <tr
+          v-for="[teacher, teacherData] in Object.entries(teachers)"
+          :key="teacher"
+        >
+          <td>{{ teacher }}</td>
+          <td>{{ teacherData.gpa.toPrecision(4) }}</td>
+          <td>
+            {{
+              ratings[teacher] &&
+              ratings[teacher].avgRating &&
+              ratings[teacher].avgRating !== -1
+                ? ratings[teacher].avgRating.toFixed(1)
+                : "-"
+            }}
+          </td>
+          <td>
+            {{
+              ratings[teacher] &&
+              ratings[teacher].avgDifficulty &&
+              ratings[teacher].avgDifficulty !== -1
+                ? ratings[teacher].avgDifficulty
+                : "-"
+            }}
+          </td>
+          <td>
+            {{
+              ratings[teacher] &&
+              ratings[teacher].wouldTakeAgain &&
+              ratings[teacher].wouldTakeAgain !== -1
+                ? ratings[teacher].wouldTakeAgain.toFixed(0) + "%"
+                : "-"
+            }}
+          </td>
+          <td>{{ teacherData.students }}</td>
+          <td>{{ teacherData.courses }}</td>
+          <td>{{ ratings[teacher]?.numRatings }}</td>
+        </tr>
+      </tbody>
     </table>
     <p>
       Created by
@@ -193,19 +195,15 @@ table {
   table-layout: fixed;
   width: 100%;
   border-collapse: collapse;
+  border: 1px solid gray;
+  margin-top: 2px;
 }
 
 th,
 td {
-  padding: 20px;
-}
-
-th {
-  letter-spacing: 2px;
-}
-
-td {
-  letter-spacing: 1px;
+  padding: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 tbody td {
@@ -214,6 +212,11 @@ tbody td {
 
 tfoot th {
   text-align: right;
+}
+
+tbody tr:nth-child(even),
+thead {
+  background-color: #f2f2f2;
 }
 
 /* 
@@ -254,6 +257,10 @@ and also iPads specifically.
     border-bottom: 1px solid #eee;
     position: relative;
     padding-left: 50%;
+  }
+
+  tr:nth-child(even) td {
+    border-bottom: 1px solid white;
   }
 
   td:before {
