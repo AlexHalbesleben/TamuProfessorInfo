@@ -56,6 +56,14 @@
         <td>{{ ratings[teacher]?.numRatings }}</td>
       </tr>
     </table>
+    <p style="position: absolute; bottom: 0">
+      Created by
+      <a href="https://github.com/AlexHalbesleben" target="_blank"
+        >Alex Halbesleben</a
+      >.<br />To get started, type any course's subject in the subject field and
+      course number in the number field.<br />This has all courses from fall
+      2022 and spring 2023 for which Texas A&M has released grade information.
+    </p>
   </div>
 </template>
 
