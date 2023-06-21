@@ -19,7 +19,6 @@ const constants_1 = require("./constants");
 const client = new graphql_request_1.GraphQLClient('https://www.ratemyprofessors.com/graphql', {
     headers: {
         authorization: `Basic ${constants_1.AUTH_TOKEN}`,
-        "Access-Control-Allow-Origin": "*"
     },
     fetch: isomorphic_fetch_1.default
 });
