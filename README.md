@@ -1,6 +1,6 @@
 # tamuprofessorinfo
 
-[alexhalbesleben.github.io/tamuprofessorinfo](alexhalbesleben.github.io/tamuprofessorinfo)
+[alexhalbesleben.github.io/tamuprofessorinfo](https://alexhalbesleben.github.io/tamuprofessorinfo)
 
 ## Project setup
 ```
