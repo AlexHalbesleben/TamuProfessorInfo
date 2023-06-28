@@ -26,7 +26,12 @@
       </thead>
       <tbody>
         <tr v-for="[teacher, teacherData] in sortedTeachers" :key="teacher">
-          <td>{{ teacher }}</td>
+          <td>
+            <a
+              :href="`https://ratemyprofessors.com/professor/${teacherData.id}`"
+              >{{ teacher }}</a
+            >
+          </td>
           <td>{{ teacherData.gpa.toPrecision(4) }}</td>
           <td>
             {{
@@ -199,6 +204,7 @@ export default class App extends Vue {
         avgDifficulty: number;
         wouldTakeAgain: number;
         numRatings: number;
+        id: number;
       }
     ][];
   }
@@ -211,6 +217,7 @@ export default class App extends Vue {
     avgDifficulty: number;
     wouldTakeAgain: number;
     numRatings: number;
+    id: number;
   } {
     let students = 0;
     let totalGPA = 0;
@@ -233,6 +240,7 @@ export default class App extends Vue {
       avgDifficulty: this.ratings[teacher]?.avgDifficulty || -1,
       wouldTakeAgain: this.ratings[teacher]?.wouldTakeAgain || -1,
       numRatings: this.ratings[teacher]?.numRatings || 0,
+      id: this.ratings[teacher]?.id || 0,
     };
   }
 
@@ -243,6 +251,7 @@ export default class App extends Vue {
         avgDifficulty: number;
         wouldTakeAgain: number;
         numRatings: number;
+        id: number;
       };
     };
   }
