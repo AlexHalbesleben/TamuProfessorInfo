@@ -1,5 +1,7 @@
 # tamuprofessorinfo
 
+[alexhalbesleben.github.io/tamuprofessorinfo](alexhalbesleben.github.io/tamuprofessorinfo)
+
 ## Project setup
 ```
 npm install
