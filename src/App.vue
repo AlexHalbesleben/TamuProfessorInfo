@@ -1,70 +1,131 @@
 <template>
-  <div id="app">
-    <input type="text" v-model="subject" placeholder="Subject" />
-    <input type="number" v-model="courseNumber" />
-    <input type="checkbox" v-model="fall" name="fallCheckbox" />
-    <label for="fallCheckbox">Fall 2022</label>
-    <input type="checkbox" v-model="spring" name="springCheckbox" />
-    <label for="springCheckbox">Spring 2023</label>
+  <div id="app" class="container mt-4 theme-light">
+    <h2 class="header">Texas A&M Course Lookup</h2>
+    <div class="form-group">
+      <label for="courseInput" class="label">Subject & Course Number</label>
+      <input
+        id="courseInput"
+        type="text"
+        v-model="course"
+        placeholder="MATH 251"
+        class="form-control input"
+        :class="{
+          'border-green': isCourseValid,
+          'border-red': isCourseInvalid,
+          'border-black': course == '',
+        }"
+      />
+    </div>
+    <div v-if="isCourseNotFound" class="course-not-found">
+      Course not found. Please try again.
+    </div>
 
-    <table v-if="courses">
-      <thead>
-        <tr>
-          <th
-            v-for="heading in tableHeadings"
-            :key="heading.value"
-            @click="updateSort(heading.value)"
-            :class="{
-              active: sort.sortBy === heading.value,
-              ascending: sort.sortBy === heading.value && !sort.descending,
-              descending: sort.sortBy === heading.value && sort.descending,
-            }"
-          >
-            {{ heading.text }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="[teacher, teacherData] in sortedTeachers" :key="teacher">
-          <td>
-            <a
-              :href="`https://ratemyprofessors.com/professor/${teacherData.id}`"
-              >{{ teacher }}</a
+    <div class="form-check form-check-inline">
+      <input
+        id="fallCheckbox"
+        type="checkbox"
+        v-model="fall"
+        class="form-check-input checkbox"
+      />
+      <label for="fallCheckbox" class="form-check-label label">Fall 2022</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input
+        id="springCheckbox"
+        type="checkbox"
+        v-model="spring"
+        class="form-check-input checkbox"
+      />
+      <label for="springCheckbox" class="form-check-label label"
+        >Spring 2023</label
+      >
+    </div>
+    <transition name="fade">
+      <table v-if="courses" class="table table-striped mt-4 table-theme">
+        <thead>
+          <tr>
+            <th
+              v-for="heading in tableHeadings"
+              :key="heading.value"
+              @click="updateSort(heading.value)"
+              :class="{
+                active: sort.sortBy === heading.value,
+                ascending: sort.sortBy === heading.value && !sort.descending,
+                descending: sort.sortBy === heading.value && sort.descending,
+              }"
             >
-          </td>
-          <td>{{ teacherData.gpa.toPrecision(4) }}</td>
-          <td>
-            {{
-              teacherData.avgRating !== -1
-                ? teacherData.avgRating.toFixed(1)
-                : "-"
-            }}
-          </td>
-          <td>
-            {{
-              teacherData.avgDifficulty !== -1 ? teacherData.avgDifficulty : "-"
-            }}
-          </td>
-          <td>
-            {{
-              teacherData.wouldTakeAgain !== -1
-                ? teacherData.wouldTakeAgain.toFixed(0) + "%"
-                : "-"
-            }}
-          </td>
-          <td>{{ teacherData.students }}</td>
-          <td>{{ teacherData.courses }}</td>
-          <td>{{ teacherData.numRatings }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>
+              {{ heading.text }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="[teacher, teacherData] in sortedTeachers" :key="teacher">
+            <td>
+              <a
+                :href="`https://ratemyprofessors.com/professor/${teacherData.id}`"
+                >{{ teacher }}</a
+              >
+            </td>
+            <td>{{ teacherData.gpa.toPrecision(4) }}</td>
+            <td>
+              {{
+                teacherData.avgRating !== -1
+                  ? teacherData.avgRating.toFixed(1)
+                  : "-"
+              }}
+            </td>
+            <td>
+              {{
+                teacherData.avgDifficulty !== -1
+                  ? teacherData.avgDifficulty
+                  : "-"
+              }}
+            </td>
+            <td>
+              {{
+                teacherData.wouldTakeAgain !== -1
+                  ? teacherData.wouldTakeAgain.toFixed(0) + "%"
+                  : "-"
+              }}
+            </td>
+            <td>{{ teacherData.students }}</td>
+            <td>{{ teacherData.courses }}</td>
+            <td>{{ teacherData.numRatings }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </transition>
+
+    <p class="mt-4 footer">
       Created by
-      <a href="https://github.com/AlexHalbesleben" target="_blank"
-        >Alex Halbesleben</a
-      >.<br />To get started, type any course's subject in the subject field and
-      course number in the number field.<br />This has all courses from fall
-      2022 and spring 2023 for which Texas A&M has released grade information.
+      <a href="https://github.com/AlexHalbesleben" target="_blank" class="link">
+        Alex Halbesleben</a
+      >
+      with help from
+      <a href="https://github.com/T-Lind" target="_blank" class="link">
+        Tiernan Lindauer</a
+      >.
+      <br />
+      To get started, type any course's subject and course number in the field.
+      <br />
+      This has all courses from fall 2022 and spring 2023 for which Texas A&M
+      has released grade information.
+      <br />
+      Found a bug or want to contribute? File an issue or PR
+      <a
+        href="https://github.com/AlexHalbesleben/tamuprofessorinfo/issues"
+        target="_blank"
+        class="link"
+        >here</a
+      >.
+      <br />
+      <br />
+      <strong>
+        Disclaimer: This is not an official Texas A&M website. The goal of this
+        project is to make it easier for students to find information about
+        courses and professors. Students should always check official TAMU
+        websites for the most up-to-date information.
+      </strong>
     </p>
   </div>
 </template>
@@ -78,6 +139,7 @@ import { Component, Vue } from "vue-property-decorator";
 export default class App extends Vue {
   subject = "";
   courseNumber = 0;
+
   get courseData() {
     return json as {
       [key: string]: {
@@ -117,8 +179,23 @@ export default class App extends Vue {
   fall = true;
   spring = true;
 
+  course = "";
+
   get courseName(): string {
-    return `${this.subject.toUpperCase()}-${this.courseNumber}`;
+    const [subject, courseNumber] = this.course.split(" ");
+    return `${subject.toUpperCase()}-${courseNumber}`;
+  }
+
+  get isCourseValid(): boolean {
+    return this.course !== "";
+  }
+
+  get isCourseInvalid(): boolean {
+    return this.course !== "" && !this.isCourseValid;
+  }
+
+  get isCourseNotFound() {
+    return this.courseName && this.courseName !== "-undefined" && !this.courses;
   }
 
   get courses():
@@ -258,140 +335,6 @@ export default class App extends Vue {
 }
 </script>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
-input {
-  max-width: 3.5em;
-}
-
-table {
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px solid gray;
-  margin-top: 2px;
-}
-
-th,
-td {
-  padding: 10px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
-tbody td {
-  text-align: center;
-}
-
-tfoot th {
-  text-align: right;
-}
-
-tbody tr:nth-child(even),
-thead {
-  background-color: #f2f2f2;
-}
-
-th.active::after {
-  color: black;
-  font-size: 1.25rem;
-}
-
-th.ascending::after {
-  content: "↑";
-}
-
-th.descending::after {
-  content: "↓";
-}
-
-/* 
-Max width before this PARTICULAR table gets nasty
-This query will take effect for any screen smaller than 760px
-and also iPads specifically.
-*/
-@media only screen and (max-width: 760px),
-  (min-device-width: 768px) and (max-device-width: 1024px) {
-  /* Force table to not be like tables anymore */
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
-    display: block;
-  }
-
-  td {
-    padding: inherit;
-  }
-
-  /* Hide table headers (but not display: none;, for accessibility) */
-  thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  tr {
-    border: 1px solid #ccc;
-  }
-
-  td {
-    /* Behave  like a "row" */
-    border: none;
-    border-bottom: 1px solid #eee;
-    position: relative;
-    padding-left: 50%;
-  }
-
-  tr:nth-child(even) td {
-    border-bottom: 1px solid white;
-  }
-
-  td:before {
-    /* Now like a table header */
-    position: absolute;
-    /* Top/left values mimic padding */
-    top: 0px;
-    left: 6px;
-    width: 45%;
-    padding-right: 10px;
-    white-space: nowrap;
-  }
-
-  /*
-	Label the data
-	*/
-  td:nth-of-type(1):before {
-    content: "Teacher";
-  }
-  td:nth-of-type(2):before {
-    content: "Average GPA";
-  }
-  td:nth-of-type(3):before {
-    content: "Average rating";
-  }
-  td:nth-of-type(4):before {
-    content: "Average difficulty";
-  }
-  td:nth-of-type(5):before {
-    content: "% would take again";
-  }
-  td:nth-of-type(6):before {
-    content: "Students taught";
-  }
-  td:nth-of-type(7):before {
-    content: "Courses taught";
-  }
-  td:nth-of-type(8):before {
-    content: "Number of ratings";
-  }
-}
+<style scoped>
+@import "./styles.css";
 </style>
